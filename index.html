@@ -18,11 +18,10 @@
             embedded
             gesture-detector
         >
-            <a-assets>
-                <a-asset-item
-                    id="animated-asset"
-                    src="assets/asset.glb"
-                ></a-asset-item>
+            <a-assets timeout="10000">
+                <a-asset-item id="animated-asset" src="assets/asset.glb"></a-asset-item>
+                <!-- 預載影片 -->
+                <video id="ding-video" src="assets/ding.mp4" preload="auto" muted></video>
             </a-assets>
 
             <a-marker
@@ -37,15 +36,46 @@
             >
                 <a-entity
                     id="bowser-model"
-                    scale="2.1333184137328143 2.1333184137328143 2.1333184137328143"
+                    scale="1.152453848971107 1.152453848971107 1.152453848971107"
                     animation-mixer="loop: repeat"
                     gltf-model="#animated-asset"
                     class="clickable"
                     gesture-handler
                 ></a-entity>
+
+                <a-video
+                    src="#ding-video"
+                    position="0 0.5 -0.5"
+                    scale="1 1 1"
+                    autoplay
+                    muted
+                ></a-video>
             </a-marker>
 
             <a-entity camera></a-entity>
         </a-scene>
+
+        <script>
+            // 標記被偵測時播放影片
+            document.querySelector('#animated-marker').addEventListener('markerFound', () => {
+                const aVideo = document.querySelector('a-video');
+                if (aVideo) {
+                    const videoElement = aVideo.components.material.material.map.image;
+                    videoElement.play();
+                    videoElement.muted = false; // 恢復聲音
+                }
+            });
+
+            // 標記消失時暫停影片並靜音
+            document.querySelector('#animated-marker').addEventListener('markerLost', () => {
+                const aVideo = document.querySelector('a-video');
+                if (aVideo) {
+                    const videoElement = aVideo.components.material.material.map.image;
+                    videoElement.pause();
+                    videoElement.currentTime = 0; // 重置播放進度
+                    videoElement.muted = true; // 強制靜音
+                }
+            });
+        </script>
     </body>
 </html>
